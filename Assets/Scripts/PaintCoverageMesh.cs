@@ -95,6 +95,15 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
         Debug.Log("Painted 100 text");
        
     }
+    public float DisplayPercent
+    {
+        get
+        {
+            // Example: 10% real coverage == 100% UI
+            const float fullAt = 10f;
 
+            return Mathf.Clamp01(CoveragePercent / fullAt) * 100f;
+        }
+    }
 }
 

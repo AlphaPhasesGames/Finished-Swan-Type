@@ -6,7 +6,7 @@ public class PaintCoverage : MonoBehaviour, IPaintCoverage
     [Range(0f, 1f)]
     public float completionThreshold = 0.95f;
     [Header("Tuning")]
-    public float coverageScale = 2f;
+    public float coverageScale;
     public float sampleSpacing = 0.25f;
 
     public bool IsComplete => IsFullyPainted;
@@ -111,7 +111,7 @@ public class PaintCoverage : MonoBehaviour, IPaintCoverage
     // =============================
     // INTERFACE
     // =============================
-
+    /*
     public float CoveragePercent
     {
         get
@@ -119,5 +119,48 @@ public class PaintCoverage : MonoBehaviour, IPaintCoverage
             if (samplePoints.Count == 0) return 0f;
             return (float)paintedSamples.Count / samplePoints.Count * 100f;
         }
+    }*/
+
+    public float CoveragePercent
+    {
+        get
+        {
+            float requiredSamples =
+                (samplePoints.Count * coverageScale) * completionThreshold;
+
+            if (requiredSamples <= 0f)
+                return 0f;
+
+            float progress =
+                paintedSamples.Count / requiredSamples;
+
+            return Mathf.Clamp01(progress) * 100f;
+        }
     }
+
+    public float DisplayPercent
+    {
+        get
+        {
+            float requiredSamples =
+                (samplePoints.Count * coverageScale) * completionThreshold;
+
+            if (requiredSamples <= 0f)
+                return 0f;
+
+            float progress =
+                paintedSamples.Count / requiredSamples;
+
+            return Mathf.Clamp01(progress) * 100f;
+        }
+    }
+
+    /*
+    public float DisplayPercent
+    {
+        get
+        {
+            return CoveragePercent;
+        }
+    }'*/
 }

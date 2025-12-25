@@ -77,12 +77,7 @@ public class PaintCoverageUI : MonoBehaviour
             return;
         }
 
-        float mappedPercent =
-            (currentTarget.CoveragePercent / realPercentForFullUI) * 100f;
-
-        mappedPercent = Mathf.Clamp(mappedPercent, 0f, 100f);
-
-        coverageText.text = $"{mappedPercent:F1}%";
+        coverageText.text = $"{currentTarget.DisplayPercent:F1}%";
     }
 }
 
