@@ -19,10 +19,45 @@ public class DecalShooter : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
            Shoot();
-        
+        if (Input.GetButtonDown("Fire1"))
+        {
+            Shoot();
+        }
+    }
+
+    void Shoot()
+    {
+        // RESET all mesh paint locks ONCE per click
+        foreach (var mesh in Object.FindObjectsByType<PaintCoverageMesh>(
+                     FindObjectsSortMode.None))
+        {
+            mesh.ResetPaintClick();
+        }
+
+        hitColliders.Clear();
+
+        int sprayRays = 3;
+        float sprayAngle = 4f;
+
+        Vector3 origin = transform.position;
+        Vector3 forward = transform.forward;
+
+        TryShootRay(origin, forward);
+
+        for (int i = 0; i < sprayRays; i++)
+        {
+            Vector2 rand = Random.insideUnitCircle;
+            Vector3 sprayDir =
+                Quaternion.AngleAxis(rand.x * sprayAngle, transform.up) *
+                Quaternion.AngleAxis(rand.y * sprayAngle, transform.right) *
+                forward;
+
+            TryShootRay(origin, sprayDir);
+        }
     }
 
 
+    /*
     void Shoot()
     {
         hitColliders.Clear();
@@ -53,7 +88,7 @@ public class DecalShooter : MonoBehaviour
             mesh.ResetPaintClick();
         }
     }
-
+    */
 
 
     void TryShootRay(Vector3 origin, Vector3 direction)
