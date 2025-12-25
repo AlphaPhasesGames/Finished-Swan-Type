@@ -47,37 +47,81 @@ public class DecalShooter : MonoBehaviour
 
             TryShootRay(origin, sprayDir);
         }
+
+        foreach (var mesh in Object.FindObjectsByType<PaintCoverageMesh>(FindObjectsSortMode.None))
+        {
+            mesh.ResetPaintClick();
+        }
     }
+
+
 
     void TryShootRay(Vector3 origin, Vector3 direction)
     {
         if (Physics.Raycast(origin, direction, out RaycastHit hit, range))
         {
-            // Mesh coverage (already correct)
+            var col = hit.collider;
+
+            // ===== MESH COVERAGE (GATED) =====
             var meshCoverage =
-                hit.collider.GetComponentInParent<PaintCoverageMesh>();
+                col.GetComponentInParent<PaintCoverageMesh>();
+
             if (meshCoverage != null)
-                meshCoverage.RegisterPaintHit(hit);
+            {
+                // Only allow ONE mesh registration per click
+                if (hitColliders.Add(col))
+                {
+                    meshCoverage.RegisterPaintHit(hit);
+                }
+            }
 
-            // Cube coverage (ADD HERE)
+            // ===== CUBE COVERAGE (UNGATED) =====
             var cubeCoverage =
-                hit.collider.GetComponentInParent<PaintCoverage>();
-            if (cubeCoverage != null)
-                cubeCoverage.RegisterPaint(hit.point, hit.normal, paintRadius);
+                col.GetComponentInParent<PaintCoverage>();
 
+            if (cubeCoverage != null)
+            {
+                cubeCoverage.RegisterPaint(hit.point, hit.normal, paintRadius);
+            }
+
+            // ===== VISUALS =====
             SpawnDecal(hit, direction);
         }
     }
+
+
+
 
     /*
         void TryShootRay(Vector3 origin, Vector3 direction)
         {
             if (Physics.Raycast(origin, direction, out RaycastHit hit, range))
             {
+                // Mesh coverage (already correct)
+                var meshCoverage =
+                    hit.collider.GetComponentInParent<PaintCoverageMesh>();
+                if (meshCoverage != null)
+                    meshCoverage.RegisterPaintHit(hit);
+
+                // Cube coverage (ADD HERE)
+                var cubeCoverage =
+                    hit.collider.GetComponentInParent<PaintCoverage>();
+                if (cubeCoverage != null)
+                    cubeCoverage.RegisterPaint(hit.point, hit.normal, paintRadius);
+
                 SpawnDecal(hit, direction);
             }
         }
-    */
+
+
+            void TryShootRay(Vector3 origin, Vector3 direction)
+            {
+                if (Physics.Raycast(origin, direction, out RaycastHit hit, range))
+                {
+                    SpawnDecal(hit, direction);
+                }
+            }
+        */
 
     public void SpawnDecal(RaycastHit hit, Vector3 rayDir)
     {

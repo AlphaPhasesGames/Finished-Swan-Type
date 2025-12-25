@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.Rendering;
 public class PaintCoverage : MonoBehaviour, IPaintCoverage
 {
     [Range(0f, 1f)]
@@ -105,6 +105,7 @@ public class PaintCoverage : MonoBehaviour, IPaintCoverage
         if (IsFullyPainted)
         {
             Debug.Log($"{name} FULLY PAINTED ({CoveragePercent:F1}%)");
+            OnPaintCompleted();
         }
     }
 
@@ -120,6 +121,19 @@ public class PaintCoverage : MonoBehaviour, IPaintCoverage
             return (float)paintedSamples.Count / samplePoints.Count * 100f;
         }
     }*/
+
+    private void OnPaintCompleted()
+    {
+        Renderer r = GetComponent<Renderer>();
+
+        // Visual state = UI 100%
+        r.material.color = Color.black;
+
+        r.shadowCastingMode = ShadowCastingMode.On;
+        r.receiveShadows = true;
+        Debug.Log("Painted 100 text");
+
+    }
 
     public float CoveragePercent
     {

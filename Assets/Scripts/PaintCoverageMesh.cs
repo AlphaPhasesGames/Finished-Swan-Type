@@ -15,9 +15,14 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
     [Header("Completion")]
     [Range(0f, 100f)]
     public float completionThreshold = 80f;
-
+    private bool paintedThisClick;
     public bool IsComplete { get; private set; }
 
+
+    [Header("Tuning")]
+[SerializeField] private float coverageMultiplier = 230f;
+
+    /*
     public float DisplayCoveragePercent
     {
         get
@@ -25,16 +30,16 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
             return IsComplete ? 100f : CoveragePercent;
         }
     }
-
+    */
 
     // ===== Internal =====
     private HashSet<int> paintedTriangles = new HashSet<int>();
     private int totalTriangles;
-
+    /*
     private void Awake()
     {
         MeshCollider meshCol = GetComponent<MeshCollider>();
-
+        Debug.Log($"{name} totalTriangles = {totalTriangles}");
         if (!meshCol || !meshCol.sharedMesh)
         {
             Debug.LogError($"{name} needs a MeshCollider with a valid mesh.");
@@ -44,6 +49,22 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
 
         totalTriangles = meshCol.sharedMesh.triangles.Length / 3;
     }
+    */
+
+    private void Awake()
+    {
+        MeshCollider meshCol = GetComponentInParent<MeshCollider>();
+
+        if (!meshCol || !meshCol.sharedMesh)
+        {
+            Debug.LogError($"{name} needs a MeshCollider with a valid mesh.");
+            enabled = false;
+            return;
+        }
+
+        totalTriangles = meshCol.sharedMesh.triangles.Length / 3;
+        Debug.Log($"{name} totalTriangles = {totalTriangles}");
+    }
 
     private void Start()
     {
@@ -51,6 +72,25 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
        
     }
 
+
+    public void RegisterPaintHit(RaycastHit hit)
+    {
+        if (paintedThisClick)
+            return;
+
+        int triIndex = hit.triangleIndex;
+        if (triIndex < 0)
+            return;
+
+        if (paintedTriangles.Add(triIndex))
+        {
+            paintedThisClick = true;
+            UpdateCoverage();
+            Debug.Log($"Coverage now: {CoveragePercent:F1}%");
+        }
+    }
+
+    /*
     /// <summary>
     /// Call this when a paint ray hits this object
     /// </summary>
@@ -61,24 +101,25 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
         int triIndex = hit.triangleIndex;
         if (triIndex < 0)
             return;
-
+        Debug.Log($"Hit triangle {hit.triangleIndex}");
         if (paintedTriangles.Add(triIndex))
         {
             UpdateCoverage();
             Debug.Log($"Coverage now: {CoveragePercent:F1}%");
         }
     }
+    */
+
 
     private void UpdateCoverage()
     {
         CoveragePercent =
-            (float)paintedTriangles.Count / totalTriangles * 100f;
+            (float)paintedTriangles.Count / totalTriangles * coverageMultiplier;
 
-        if (!IsComplete && CoveragePercent >= 10f)
+        if (!IsComplete && CoveragePercent >= completionThreshold)
         {
             IsComplete = true;
             Debug.Log($"{name} PAINT COMPLETE");
-
             OnPaintCompleted();
         }
     }
@@ -88,13 +129,25 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
         Renderer r = GetComponent<Renderer>();
 
         // Visual state = UI 100%
-        r.material.color = Color.black;
+       // r.material.color = Color.black;
 
         r.shadowCastingMode = ShadowCastingMode.On;
         r.receiveShadows = true;
         Debug.Log("Painted 100 text");
        
     }
+
+
+    public float DisplayPercent
+    {
+        get
+        {
+            // 10% real coverage == 100% UI (by design)
+            const float fullAt = 10f;
+            return Mathf.Clamp01(CoveragePercent / fullAt) * 100f;
+        }
+    }
+    /*
     public float DisplayPercent
     {
         get
@@ -104,6 +157,11 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
 
             return Mathf.Clamp01(CoveragePercent / fullAt) * 100f;
         }
+    }
+    */
+    public void ResetPaintClick()
+    {
+        paintedThisClick = false;
     }
 }
 
