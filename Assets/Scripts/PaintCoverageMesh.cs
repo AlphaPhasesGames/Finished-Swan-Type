@@ -18,10 +18,8 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
     private bool paintedThisClick;
     public bool IsComplete { get; private set; }
 
-
     [Header("Tuning")]
-[SerializeField] private float coverageMultiplier = 230f;
-
+    [SerializeField] private float coverageMultiplier = 230f;
     /*
     public float DisplayCoveragePercent
     {
@@ -108,9 +106,21 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
             Debug.Log($"Coverage now: {CoveragePercent:F1}%");
         }
     }
-    */
+    
+    private void UpdateCoverage()
+    {
+        CoveragePercent =
+            (float)paintedTriangles.Count / totalTriangles * 250f;
 
+        if (!IsComplete && CoveragePercent >= 10f)
+        {
+            IsComplete = true;
+            Debug.Log($"{name} PAINT COMPLETE");
 
+            OnPaintCompleted();
+        }
+    }
+*/
     private void UpdateCoverage()
     {
         CoveragePercent =
@@ -124,12 +134,13 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
         }
     }
 
+
     private void OnPaintCompleted()
     {
         Renderer r = GetComponent<Renderer>();
 
         // Visual state = UI 100%
-       // r.material.color = Color.black;
+        r.material.color = Color.black;
 
         r.shadowCastingMode = ShadowCastingMode.On;
         r.receiveShadows = true;

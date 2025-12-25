@@ -186,7 +186,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   completionThreshold: 100
-  coverageMultiplier: 200
+  coverageMultiplier: 230
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
