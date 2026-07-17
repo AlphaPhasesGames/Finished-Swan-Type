@@ -17,7 +17,7 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
     public float completionThreshold = 80f;
     private bool paintedThisClick;
     public bool IsComplete { get; private set; }
-
+    public Material shader;
     [Header("Tuning")]
     [SerializeField] private float coverageMultiplier = 230f;
     /*
@@ -61,6 +61,7 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
         }
 
         totalTriangles = meshCol.sharedMesh.triangles.Length / 3;
+        shader = GetComponent<Renderer>().material;
         Debug.Log($"{name} totalTriangles = {totalTriangles}");
     }
 
@@ -70,6 +71,11 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
        
     }
 
+
+    private void Update()
+    {
+        Debug.Log("paint material is at " + shader.GetFloat("_PaintStength"));
+    }
 
     public void RegisterPaintHit(RaycastHit hit)
     {
@@ -129,7 +135,7 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
         if (!IsComplete && CoveragePercent >= completionThreshold)
         {
             IsComplete = true;
-            Debug.Log($"{name} PAINT COMPLETE");
+           
             OnPaintCompleted();
         }
     }
@@ -137,13 +143,13 @@ public class PaintCoverageMesh : MonoBehaviour, IPaintCoverage
 
     private void OnPaintCompleted()
     {
-        Renderer r = GetComponent<Renderer>();
+        //Renderer r = GetComponent<Renderer>();
 
         // Visual state = UI 100%
-        r.material.color = Color.black;
-
-        r.shadowCastingMode = ShadowCastingMode.On;
-        r.receiveShadows = true;
+        // r.material.color = Color.black;
+        shader.SetFloat("_PaintStength", 1);
+        //r.shadowCastingMode = ShadowCastingMode.On;
+        //r.receiveShadows = true;
         Debug.Log("Painted 100 text");
        
     }
